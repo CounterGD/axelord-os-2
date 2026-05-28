@@ -22,16 +22,17 @@ jobs:
 
       - name: Configure ISO build
         run: |
-          # Initialize the live-build configuration
+          # Initialize the live-build configuration with KDE and SDDM
           lb config \
             --mode debian \
             --distribution bookworm \
             --bootloaders grub-efi \
-            --binary-images iso-hybrid
+            --binary-images iso-hybrid \
+            --archive-areas "main contrib non-free" \
+            --packages "kde-standard kde-plasma-desktop sddm network-manager network-manager-gnome"
 
       - name: Build ISO
         run: |
-          # lb build executes the image creation
           lb build
 
       - name: Upload ISO
