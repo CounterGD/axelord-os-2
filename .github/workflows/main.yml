@@ -1,0 +1,31 @@
+name: Build Axelord OS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+      options: --privileged
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install archiso
+        run: |
+          pacman -Sy --noconfirm archiso
+
+      - name: Build ISO
+        run: |
+          mkarchiso -v -w /tmp/work -o ./out .
+
+      - name: Upload ISO
+        uses: actions/upload-artifact@v4
+        with:
+          name: axelord-os-iso
+          path: out/*.iso
+          
