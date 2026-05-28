@@ -1,0 +1,12 @@
+kde-standard
+kde-plasma-desktop
+sddm
+network-manager
+network-manager-gnome
+wget
+ruby
+curl
+build-essential
+bison
+bc
+ninja-build
