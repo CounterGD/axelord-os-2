@@ -1,0 +1,42 @@
+name: Build Axelord OS (Debian)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: debian:bookworm
+      options: --privileged
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          apt-get update
+          apt-get install -y live-build xorriso
+
+      - name: Configure ISO build
+        run: |
+          # Initialize the live-build configuration
+          lb config \
+            --mode debian \
+            --distribution bookworm \
+            --bootloaders grub-efi \
+            --binary-images iso-hybrid
+
+      - name: Build ISO
+        run: |
+          # lb build executes the image creation
+          lb build
+
+      - name: Upload ISO
+        uses: actions/upload-artifact@v4
+        with:
+          name: axelord-os-iso
+          path: "*.iso"
+          
