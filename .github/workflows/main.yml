@@ -15,19 +15,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install archiso
+      - name: Install dependencies
         run: |
-          pacman -Sy --noconfirm archiso
+          pacman -Sy --noconfirm archiso mkinitcpio
 
-      - name: Prepare hooks and permissions
+      - name: Verify hooks
         run: |
-          # Ensure execution permissions for the customization script
-          chmod +x customize.sh
-          # Verify mkinitcpio hooks (Ensures the system finds the root filesystem)
-          echo "HOOKS=(base udev memdisk archiso archiso_loop_mnt archiso_kms modconf block filesystems keyboard)" > airootfs/etc/mkinitcpio.conf
+          # Debugging step to ensure hooks are installed in the correct location
+          echo "Checking for archiso hooks..."
+          ls -l /usr/lib/initcpio/hooks/archiso
+          ls -l /usr/lib/initcpio/install/archiso
 
       - name: Build ISO
         run: |
+          # Run mkarchiso with verbose output
           mkarchiso -v -w /tmp/work -o ./out .
 
       - name: Upload ISO
