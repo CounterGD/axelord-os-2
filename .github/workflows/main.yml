@@ -19,6 +19,13 @@ jobs:
         run: |
           pacman -Sy --noconfirm archiso
 
+      - name: Prepare hooks and permissions
+        run: |
+          # Ensure execution permissions for the customization script
+          chmod +x airootfs/root/customize_airootfs.sh
+          # Verify mkinitcpio hooks (Ensures the system finds the root filesystem)
+          echo "HOOKS=(base udev memdisk archiso archiso_loop_mnt archiso_kms modconf block filesystems keyboard)" > airootfs/etc/mkinitcpio.conf
+
       - name: Build ISO
         run: |
           mkarchiso -v -w /tmp/work -o ./out .
