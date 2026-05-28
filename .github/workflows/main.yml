@@ -22,7 +22,7 @@ jobs:
       - name: Prepare hooks and permissions
         run: |
           # Ensure execution permissions for the customization script
-          chmod +x airootfs/root/customize_airootfs.sh
+          chmod +x customize.sh
           # Verify mkinitcpio hooks (Ensures the system finds the root filesystem)
           echo "HOOKS=(base udev memdisk archiso archiso_loop_mnt archiso_kms modconf block filesystems keyboard)" > airootfs/etc/mkinitcpio.conf
 
