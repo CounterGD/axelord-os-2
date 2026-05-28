@@ -17,20 +17,18 @@ jobs:
 
       - name: Install dependencies
         run: |
-          # Ensure both archiso and the specific mkinitcpio hooks are installed
           pacman -Sy --noconfirm archiso mkinitcpio-archiso
 
-      - name: Verify hooks existence
+      - name: Fix mkinitcpio configuration
         run: |
-          # Confirm hooks are present before building
-          if [ ! -f /usr/lib/initcpio/hooks/archiso ]; then
-            echo "Error: Archiso hooks not found!"
-            exit 1
-          fi
-          echo "Archiso hooks found successfully."
+          # Overwrite the profile's mkinitcpio.conf with standard archiso hooks
+          # This ensures 'archiso' is in the HOOKS list, which prevents the 
+          # "failed to detect root filesystem" error.
+          echo "HOOKS=(base udev memdisk archiso archiso_loop_mnt archiso_kms modconf block filesystems keyboard)" > airootfs/etc/mkinitcpio.conf
 
       - name: Build ISO
         run: |
+          # Use the current directory as the profile path
           mkarchiso -v -w /tmp/work -o ./out .
 
       - name: Upload ISO
