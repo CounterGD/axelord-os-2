@@ -29,7 +29,6 @@ jobs:
             --bootloaders grub-efi \
             --binary-images iso-hybrid \
             --archive-areas "main contrib non-free" \
-            --packages "kde-standard kde-plasma-desktop sddm network-manager network-manager-gnome"
 
       - name: Build ISO
         run: |
@@ -40,4 +39,12 @@ jobs:
         with:
           name: axelord-os-iso
           path: "*.iso"
+          
+      - name: Download a Build Artifact
+        uses: actions/download-artifact@v3.1.0
+        with:
+          # Artifact name
+          name: axelord-os-iso
+          # Destination path
+          path: *.iso
           
