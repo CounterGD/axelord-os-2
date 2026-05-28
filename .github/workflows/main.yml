@@ -17,18 +17,20 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pacman -Sy --noconfirm archiso mkinitcpio
+          # Ensure both archiso and the specific mkinitcpio hooks are installed
+          pacman -Sy --noconfirm archiso mkinitcpio-archiso
 
-      - name: Verify hooks
+      - name: Verify hooks existence
         run: |
-          # Debugging step to ensure hooks are installed in the correct location
-          echo "Checking for archiso hooks..."
-          ls -l /usr/lib/initcpio/hooks/archiso
-          ls -l /usr/lib/initcpio/install/archiso
+          # Confirm hooks are present before building
+          if [ ! -f /usr/lib/initcpio/hooks/archiso ]; then
+            echo "Error: Archiso hooks not found!"
+            exit 1
+          fi
+          echo "Archiso hooks found successfully."
 
       - name: Build ISO
         run: |
-          # Run mkarchiso with verbose output
           mkarchiso -v -w /tmp/work -o ./out .
 
       - name: Upload ISO
