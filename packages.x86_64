@@ -1,0 +1,20 @@
+# Kernels
+linux
+linux-lts
+linux-zen
+linux-firmware
+intel-ucode
+amd-ucode
+# KDE
+plasma-meta
+sddm
+kde-system-meta
+kde-utilities-meta
+# Tools
+networkmanager
+vim
+git
+base-devel
+sudo
+wget
+curl
