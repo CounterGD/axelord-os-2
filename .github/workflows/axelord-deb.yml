@@ -19,13 +19,15 @@ jobs:
         run: |
           apt-get update
           # Install live-build and tools to compile your C++ flasher
-          apt-get install -y live-build xorriso g++ libudev-dev qtbase5-dev
+          apt-get install -y live-build xorriso g++ libudev-dev qtbase5-dev pkg-config
 
       - name: Compile Axelord Flasher
         run: |
           # Compile your C++ code
           # Assuming your source is in src/flasher.cpp
-          g++ -o axelord-flasher src/main.cpp -ludev -lQt5Core -lQt5Widgets
+          g++ src/main.cpp -o axelord-flasher \
+            $(pkg-config --cflags --libs Qt5Widgets) \
+            -ludev
           
           # Place the binary into the includes directory so it's copied to the ISO
           mkdir -p config/includes.chroot/usr/bin
