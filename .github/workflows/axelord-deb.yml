@@ -27,7 +27,7 @@ jobs:
           # Assuming your source is in src/flasher.cpp
           g++ src/main.cpp -o axelord-flasher \
             $(pkg-config --cflags --libs Qt5Widgets) \
-            -ludev
+            -ludev -fPIC
           
           # Place the binary into the includes directory so it's copied to the ISO
           mkdir -p config/includes.chroot/usr/bin
