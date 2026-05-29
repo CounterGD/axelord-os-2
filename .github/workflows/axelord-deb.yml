@@ -18,17 +18,27 @@ jobs:
       - name: Install build dependencies
         run: |
           apt-get update
-          apt-get install -y live-build xorriso
+          # Install live-build and tools to compile your C++ flasher
+          apt-get install -y live-build xorriso g++ libudev-dev qtbase5-dev
+
+      - name: Compile Axelord Flasher
+        run: |
+          # Compile your C++ code
+          # Assuming your source is in src/flasher.cpp
+          g++ -o axelord-flasher src/main.cpp -ludev -lQt5Core -lQt5Widgets
+          
+          # Place the binary into the includes directory so it's copied to the ISO
+          mkdir -p config/includes.chroot/usr/bin
+          mv axelord-flasher config/includes.chroot/usr/bin/axelord-flasher
 
       - name: Configure ISO build
         run: |
-          # Initialize the live-build configuration with KDE and SDDM
           lb config \
             --mode debian \
             --distribution bookworm \
             --bootloaders grub-efi \
             --binary-images iso-hybrid \
-            --archive-areas "main contrib non-free" \
+            --archive-areas "main contrib non-free"
 
       - name: Build ISO
         run: |
@@ -39,4 +49,4 @@ jobs:
         with:
           name: axelord-os-iso
           path: "*.iso"
-
+          
