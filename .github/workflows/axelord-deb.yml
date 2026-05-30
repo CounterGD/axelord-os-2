@@ -1,54 +1,61 @@
-name: Build Axelord OS (Debian)
-
-on:
-  push:
-    branches:
-      - main
+name: Build Axelord OS [Debian + TUI]
+on: [push]
 
 jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: debian:bookworm
+      image: debian:bookworm-slim
       options: --privileged
+    
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Install build dependencies
+      - name: Prepare Build Environment
         run: |
-          apt-get update
-          # Install live-build and tools to compile your C++ flasher
-          apt-get install -y live-build xorriso g++ libudev-dev qtbase5-dev pkg-config
-
-      - name: Compile Axelord Flasher
-        run: |
-          # Compile your C++ code
-          # Assuming your source is in src/flasher.cpp
-          g++ src/main.cpp -o axelord-flasher \
-            $(pkg-config --cflags --libs Qt5Widgets) \
-            -ludev -fPIC
+          apt-get update && apt-get install -y live-build xorriso g++ pkg-config libudev-dev qtbase5-dev
           
-          # Place the binary into the includes directory so it's copied to the ISO
-          mkdir -p config/includes.chroot/usr/bin
-          mv axelord-flasher config/includes.chroot/usr/bin/axelord-flasher
+          # Create required directory structure
+          mkdir -p config/package-lists config/includes.chroot/etc/skel config/includes.chroot/etc/profile.d
+          
+          # 1. Generate Package List
+          cat <<EOF > config/package-lists/axelord.list.chroot
+          bash
+          htop
+          dialog
+          util-linux
+          libudev1
+          xorg
+          openbox
+          xinit
+          xterm
+          EOF
+          
+          # 2. Setup .xinitrc for Openbox
+          echo "exec openbox-session" > config/includes.chroot/etc/skel/.xinitrc
+          
+          # 3. Setup Welcome message
+          cat <<EOF > config/includes.chroot/etc/profile.d/axelord-welcome.sh
+          echo "Welcome to Axelord OS"
+          echo "To start the Graphical Interface, type 'startx'"
+          echo "Otherwise, enjoy the terminal!"
+          EOF
+          chmod +x config/includes.chroot/etc/profile.d/axelord-welcome.sh
 
-      - name: Configure ISO build
+      - name: Compile Flasher
         run: |
-          lb config \
-            --mode debian \
-            --distribution bookworm \
-            --bootloaders grub-efi \
-            --binary-images iso-hybrid \
-            --archive-areas "main contrib non-free"
+          mkdir -p config/includes.chroot/usr/local/bin
+          g++ -fPIC src/main.cpp -o config/includes.chroot/usr/local/bin/axelord-flasher \
+              $(pkg-config --cflags --libs Qt5Widgets) -ludev
 
       - name: Build ISO
         run: |
+          lb config --mode debian --distribution bookworm --binary-images iso-hybrid
           lb build
 
       - name: Upload ISO
         uses: actions/upload-artifact@v4
         with:
-          name: axelord-os-iso
+          name: axelord-os
           path: "*.iso"
           
